@@ -1,6 +1,6 @@
 import httpx
 from pydantic import BaseModel
-from ._common import CheckResult, PreflightResult, aggregate
+from ._common import CheckResult, PreflightResult, aggregate, validate_url_not_internal
 
 
 class VLMInput(BaseModel):
@@ -11,6 +11,10 @@ class VLMInput(BaseModel):
 
 def check(body: dict) -> PreflightResult:
     cfg = VLMInput.model_validate(body)
+    try:
+        validate_url_not_internal(cfg.base_url)
+    except ValueError as e:
+        return aggregate([CheckResult(name="api", status="fail", message=str(e))])
     headers = {"Authorization": f"Bearer {cfg.api_key}", "Content-Type": "application/json"}
     payload = {
         "model": cfg.model,

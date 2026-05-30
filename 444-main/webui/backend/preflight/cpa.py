@@ -1,6 +1,6 @@
 import httpx
 from pydantic import BaseModel
-from ._common import CheckResult, PreflightResult, aggregate
+from ._common import CheckResult, PreflightResult, aggregate, validate_url_not_internal
 
 
 class CPAInput(BaseModel):
@@ -10,6 +10,10 @@ class CPAInput(BaseModel):
 
 def check(body: dict) -> PreflightResult:
     cfg = CPAInput.model_validate(body)
+    try:
+        validate_url_not_internal(cfg.base_url)
+    except ValueError as e:
+        return aggregate([CheckResult(name="health", status="fail", message=str(e))])
     try:
         with httpx.Client(timeout=15.0) as c:
             r = c.get(cfg.base_url.rstrip("/") + "/v0/health",

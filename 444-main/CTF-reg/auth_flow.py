@@ -871,7 +871,8 @@ class AuthFlow:
         if not cmd:
             return ""
         try:
-            out = subprocess.check_output(cmd, shell=True, text=True, timeout=20)
+            import shlex
+            out = subprocess.check_output(shlex.split(cmd), text=True, timeout=20)
             return self._extract_otp6(out or "")
         except Exception:
             return ""
