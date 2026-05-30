@@ -1,6 +1,6 @@
 import httpx
 from pydantic import BaseModel
-from ._common import CheckResult, PreflightResult, aggregate
+from ._common import CheckResult, PreflightResult, aggregate, validate_url_not_internal
 
 
 class CaptchaInput(BaseModel):
@@ -10,6 +10,10 @@ class CaptchaInput(BaseModel):
 
 def check(body: dict) -> PreflightResult:
     cfg = CaptchaInput.model_validate(body)
+    try:
+        validate_url_not_internal(cfg.api_url)
+    except ValueError as e:
+        return aggregate([CheckResult(name="api", status="fail", message=str(e))])
     payload = {
         "clientKey": cfg.client_key,
         "task": {

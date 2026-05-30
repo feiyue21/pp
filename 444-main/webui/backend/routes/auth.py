@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException, Response, Cookie
 from pydantic import BaseModel
 from ..db import get_db
 from ..auth import CurrentUser
+from ..settings import secure_cookies
 
 router = APIRouter(prefix="/api", tags=["auth"])
 
@@ -21,6 +22,7 @@ def login(req: LoginRequest, response: Response):
         "session_id",
         sid,
         httponly=True,
+        secure=secure_cookies(),
         samesite="lax",
         max_age=7 * 24 * 3600,
         path="/",

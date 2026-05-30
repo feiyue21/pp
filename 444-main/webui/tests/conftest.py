@@ -6,6 +6,8 @@ from webui.server import create_app
 @pytest.fixture
 def client(tmp_path, monkeypatch):
     monkeypatch.setenv("WEBUI_DATA_DIR", str(tmp_path))
+    monkeypatch.setenv("WEBUI_SECURE_COOKIES", "0")
+    monkeypatch.setenv("WEBUI_SSRF_GUARD", "0")
     app = create_app()
     return TestClient(app)
 

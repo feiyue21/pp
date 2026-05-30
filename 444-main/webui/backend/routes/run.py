@@ -52,7 +52,7 @@ def submit_otp(req: OTPRequest, user: str = CurrentUser):
 
 @router.get("/logs")
 def get_logs(tail: int = 500, user: str = CurrentUser):
-    return {"lines": runner.get_tail(tail)}
+    return {"lines": runner.get_tail(min(tail, 5000))}
 
 
 @router.get("/stream")
